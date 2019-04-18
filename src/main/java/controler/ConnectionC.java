@@ -12,12 +12,12 @@ import java.security.cert.CertificateException;
 
 public class ConnectionC {
     @Value("${server.ssl.trust-store}")
-    private static String trustStoreFile;
+    private static String KSFile;
 
     @Value("${server.ssl.trust-store-password}")
-    private static String trustStorePassword;
+    private static String KSPassword;
 
-    private static String trustedAlias = "mba";
+    private static String alias;
 
     static {
         //for localhost testing only
@@ -35,26 +35,26 @@ public class ConnectionC {
     }
 
 
-    public String getMethod(String urlString) throws IOException {
+    public String sendRequest(String urlS) throws IOException {
 
-        URL url = new URL(urlString);
+        URL url = new URL(urlS);
 
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
-        int status = con.getResponseCode();
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setRequestMethod("GET");
+        int stanje = httpURLConnection.getResponseCode();
 
         BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
+                new InputStreamReader(httpURLConnection.getInputStream()));
+        String inputL;
         StringBuffer content = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine);
-            System.out.println(inputLine);
+        while ((inputL = in.readLine()) != null) {
+            content.append(inputL);
+            System.out.println(inputL);
         }
         in.close();
 
 
-        con.disconnect();
+        httpURLConnection.disconnect();
 
         return content.toString();
 
@@ -62,13 +62,13 @@ public class ConnectionC {
 
     private static boolean existsInTrustStore(Certificate[] certificates) {
 
-        Certificate certFromTrustSture;
+        Certificate fromTrustStore;
         try {
-            certFromTrustSture = readCertificate(trustStoreFile, trustStorePassword, trustedAlias);
+            fromTrustStore = readCer(alias, KSFile, KSPassword);
 
 
             try {
-                certFromTrustSture.verify(certificates[0].getPublicKey());
+                fromTrustStore.verify(certificates[0].getPublicKey());
 
             } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
                     | SignatureException e) {
@@ -85,14 +85,14 @@ public class ConnectionC {
 
     }
 
-    public static Certificate readCertificate(String keyStoreFile, String keyStorePass, String alias) throws NoSuchProviderException {
+    public static Certificate readCer(String a, String keyStoreFile, String keyStorePass ) throws NoSuchProviderException {
         try {
             KeyStore ks = KeyStore.getInstance("JKS", "SUN");
             BufferedInputStream in = new BufferedInputStream(new FileInputStream(keyStoreFile));
             ks.load(in, keyStorePass.toCharArray());
 
-            if(ks.isKeyEntry(alias)) {
-                Certificate cert = ks.getCertificate(alias);
+            if(ks.isKeyEntry(a)) {
+                Certificate cert = ks.getCertificate(a);
                 return cert;
 
             }

@@ -16,9 +16,9 @@ public class SecuredServerController {
 
         String response = null;
         try {
-            response = test.getMethod("https://localhost:8888/test/proba");
+            response = test.sendRequest("https://localhost:8888/test/proba");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Sertifikat nije od poverenja");
         }
 
         return response;
